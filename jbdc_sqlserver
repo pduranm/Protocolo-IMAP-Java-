@@ -1,0 +1,120 @@
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class Prueba {
+	
+	public static void main(String[] args) {
+		String url      = "direccion de sql server";
+		String username = "usuario";
+		String password = "pass";
+
+		/*
+		try (Connection connection = DriverManager.getConnection(url, username, password)) {
+            String query = "SELECT TOP (1000) [nombre_col], [desde_importe], [hasta_importe], [codprovincia_desde], [codprovincia_hasta], [importe_portes], [fecha_desde], [fecha_hasta] FROM [stage].[CLAY_portes_pais]";
+
+            try (Statement statement = connection.createStatement();
+                 ResultSet resultSet = statement.executeQuery(query)) {
+
+                while (resultSet.next()) {
+                    String nombre_col = resultSet.getString("nombre_col");
+                    double nombre_col = resultSet.getDouble("nombre_col");
+                    double nombre_col = resultSet.getDouble("nombre_col");
+                    String nombre_col = resultSet.getString("nombre_col");
+                    String nombre_col = resultSet.getString("nombre_col");
+                    double nombre_col = resultSet.getDouble("nombre_col");
+                    Date nombre_col = resultSet.getDate("nombre_col");
+                    Date nombre_col = resultSet.getDate("nombre_col");
+
+                    // Hacer algo con los datos obtenidos
+                    System.out.println("nombre_col: " + nombre_col);
+                    System.out.println("nombre_col: " + nombre_col);
+                    System.out.println("nombre_col: " + nombre_col);
+                    System.out.println("nombre_col: " + nombre_col);
+                    System.out.println("nombre_col: " + nombre_col);
+                    System.out.println("nombre_col: " + nombre_col);
+                    System.out.println("nombre_col: " + nombre_col);
+                    System.out.println("nombre_col: " + nombre_col);
+                    System.out.println("---------------------------------------");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        */
+		
+		/*
+		try (Connection connection = DriverManager.getConnection(url, username, password)) {
+            String insertQuery = "INSERT INTO [stage].[nombre_col] ([nombre_col], [nombre_col], [nombre_col], [nombre_col], [nombre_col], [nombre_col], [nombre_col], [nombre_col]) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+            try (PreparedStatement statement = connection.prepareStatement(insertQuery)) {
+                statement.setShort(1, (short)99); // Valor para la columna "nombre_col"
+                statement.setDouble(2, 0.0); // Valor para la columna "nombre_col"
+                statement.setDouble(3, 100.0); // Valor para la columna "nombre_col"
+                statement.setShort(4, (short)0); // Valor para la columna "nombre_col"
+                statement.setShort(5, (short)100); // Valor para la columna "nombre_col"
+                statement.setDouble(6, 10.0); // Valor para la columna "nombre_col"
+                statement.setDate(7, java.sql.Date.valueOf("2023-01-01")); // Valor para la columna "nombre_col"
+                statement.setDate(8, java.sql.Date.valueOf("2023-12-31")); // Valor para la columna "nombre_col"
+
+                int rowsAffected = statement.executeUpdate();
+                System.out.println("Filas afectadas: " + rowsAffected);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        */
+		
+		/*
+		try (Connection connection = DriverManager.getConnection(url, username, password)) {
+            String deleteQuery = "DELETE FROM [stage].[nombre_col] WHERE [nombre_col] = ?";
+
+            try (PreparedStatement statement = connection.prepareStatement(deleteQuery)) {
+                statement.setShort(1, (short)99); // Valor para el parámetro "nombre_col"
+
+                int rowsAffected = statement.executeUpdate();
+                System.out.println("Filas afectadas: " + rowsAffected);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        */
+		
+		try (Connection connection = DriverManager.getConnection(url, username, password)) {
+            // Verificar si la tabla existe
+            boolean tableExists = checkIfTableExists(connection, "nombre_tabla");
+
+            if (!tableExists) {
+                String createQuery = "CREATE TABLE [stage].[nombre_tabla] (" +
+                        "fecha date PRIMARY KEY NOT NULL, " +
+                        "minimo decimal(12,2), " +
+                        "maximo decimal(12,2), " +
+                        "media decimal(12,2), " +
+                        "fecha_ins datetime2(5)" +
+                        ")";
+
+                try (Statement statement = connection.createStatement()) {
+                    statement.executeUpdate(createQuery);
+                    System.out.println("Tabla creada correctamente.");
+                }
+            } else {
+                System.out.println("La tabla ya existe.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+	}
+	
+	private static boolean checkIfTableExists(Connection connection, String tableName) throws SQLException {
+        DatabaseMetaData metadata = connection.getMetaData();
+        ResultSet resultSet = metadata.getTables(null, null, tableName, null);
+
+        return resultSet.next();
+    }
+
+}
