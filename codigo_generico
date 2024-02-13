@@ -1,0 +1,79 @@
+import java.util.Properties;
+
+import javax.mail.BodyPart;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Store;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMultipart;
+
+public class Principal {
+    public static void main(String[] args) {
+        // Configura las siguientes variables con tu correo y contraseña
+        String email = "email";
+        String password = "pass";
+
+        // Configura las propiedades para la conexión IMAP
+        Properties properties = new Properties();
+        properties.put("mail.imap.host", "outlook.office365.com");
+        properties.put("mail.imap.port", "port_number");
+        properties.put("mail.imap.ssl.enable", "true");
+
+        // Crea una sesión de correo
+        Session session = Session.getDefaultInstance(properties);
+
+        try {
+            // Conéctate al servidor IMAP
+            Store store = session.getStore("imaps");
+            store.connect(email, password);
+
+            // Abre la carpeta de la bandeja de entrada
+            Folder inbox = store.getFolder("inbox");
+            inbox.open(Folder.READ_ONLY);
+
+            // Lee los mensajes de la bandeja de entrada
+            Message[] messages = inbox.getMessages();
+            for (Message message : messages) {
+                System.out.println("De: " + InternetAddress.toString(message.getFrom()));
+                System.out.println("Asunto: " + message.getSubject());
+                System.out.println("Contenido: " + getTextFromMessage(message));
+                System.out.println("------------------------------");
+            }
+
+            // Cierra la conexión
+            inbox.close(false);
+            store.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Obtiene el texto del mensaje
+    private static String getTextFromMessage(Message message) throws Exception {
+        if (message.isMimeType("text/plain")) {
+            return message.getContent().toString();
+        } else if (message.isMimeType("multipart/*")) {
+            MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
+            return getTextFromMimeMultipart(mimeMultipart);
+        }
+        return "";
+    }
+
+    // Obtiene el texto de las partes multipartes del mensaje
+    private static String getTextFromMimeMultipart(MimeMultipart mimeMultipart) throws Exception {
+        StringBuilder result = new StringBuilder();
+        int count = mimeMultipart.getCount();
+        for (int i = 0; i < count; i++) {
+            BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+            if (bodyPart.isMimeType("text/plain")) {
+                result.append(bodyPart.getContent());
+                break; // rompe el bucle una vez que se encuentra la parte de texto plano
+            } else if (bodyPart.isMimeType("multipart/*")) {
+                result.append(getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent()));
+            }
+        }
+        return result.toString();
+    }
+}
